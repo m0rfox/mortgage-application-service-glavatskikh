@@ -10,33 +10,33 @@ import java.util.UUID;
 @Data
 public class CustomerWithoutId {
 
-    private String firstname;
+    private String firstName;
+    private String secondName;
     private String lastName;
-    private String patronymic;
-    private String passportNumber;
-    private LocalDate birthdate;
+    private String passport;
+    private LocalDate birthDate;
     @Enumerated(EnumType.STRING)
-    private Sex sex;
+    private Gender gender;
     private int salary;
-    private int mortgageAmount;
-    private int mortgagePeriod;
+    private int creditAmount;
+    private int durationInMonths;
 
     public CustomerWithoutId() {
 
     }
 
-    public CustomerWithoutId(String firstname, String lastName, String patronymic,
-                             String passportNumber, LocalDate birthdate, Sex sex,
-                             int salary, int mortgageAmount, int mortgagePeriod) {
-        this.firstname = firstname;
+    public CustomerWithoutId(String firstName, String secondName, String lastName,
+                             String passport, LocalDate birthDate, Gender gender,
+                             int salary, int creditAmount, int durationInMonths) {
+        this.firstName = firstName;
+        this.secondName = secondName;
         this.lastName = lastName;
-        this.patronymic = patronymic;
-        this.passportNumber = passportNumber;
-        this.birthdate = birthdate;
-        this.sex = sex;
+        this.passport = passport;
+        this.birthDate = birthDate;
+        this.gender = gender;
         this.salary = salary;
-        this.mortgageAmount = mortgageAmount;
-        this.mortgagePeriod = mortgagePeriod;
+        this.creditAmount = creditAmount;
+        this.durationInMonths = durationInMonths;
     }
 
     private String generateId() {
@@ -44,8 +44,13 @@ public class CustomerWithoutId {
     }
 
     public Customer getCustomer(CustomerWithoutId customer){
-        return new Customer(generateId(), firstname, lastName, patronymic, passportNumber,
-        birthdate, sex, salary, mortgageAmount, mortgagePeriod);
+        return new Customer(generateId(), firstName, secondName, lastName, passport,
+                birthDate, gender, salary, creditAmount, durationInMonths);
+    }
+
+    public Customer getCustomerWithoutId (CustomerWithoutId customerWithoutId) {
+        return new Customer(firstName, secondName, lastName, passport,
+                birthDate, gender, salary, creditAmount, durationInMonths);
     }
 
 }

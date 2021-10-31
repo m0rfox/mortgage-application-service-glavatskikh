@@ -3,20 +3,20 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
-    <changeSet id="Schema" author="GlavatkikhVN">
+    <changeSet id="Schema" author="MKR">
         <createTable tableName="customer">
             <column name="id" type="varchar">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="FIRSTNAME" type="varchar"/>
+            <column name="FIRST_NAME" type="varchar"/>
+            <column name="SECOND_NAME" type="varchar"/>
             <column name="LAST_NAME" type="varchar"/>
-            <column name="PATRONYMIC" type="varchar"/>
-            <column name="passport_number" type="varchar"/>
-            <column name="BIRTHDATE" type="varchar"/>
-            <column name="sex" type="varchar"/>
+            <column name="passport" type="varchar"/>
+            <column name="BIRTH_DATE" type="varchar"/>
+            <column name="gender" type="varchar"/>
             <column name="salary" type="number"/>
-            <column name="MORTGAGE_AMOUNT" type="number"/>
-            <column name="MORTGAGE_PERIOD" type="int"/>
+            <column name="CREDIT_AMOUNT" type="number"/>
+            <column name="DURATION_IN_MONTHS" type="int"/>
             <column name="status" type="varchar"/>
             <column name="monthly_payment" type="number"/>
         </createTable>
