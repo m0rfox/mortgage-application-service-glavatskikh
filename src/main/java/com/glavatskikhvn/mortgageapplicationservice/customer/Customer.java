@@ -11,102 +11,63 @@ import java.time.LocalDate;
 @Entity
 public class Customer {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "ID", nullable = false)
     private String id;
-    @Column(name = "first_Name")
-    private String firstName;
-    @Column(name = "second_Name")
+    @Column(name = "FIRSTNAME")
+    private String firstname;
+    @Column(name = "SECOND_NAME")
     private String secondName;
-    @Column(name = "last_name")
-    private String lastName;
-    @Column(name = "passport")
-    private String passport;
-    @Column(name = "birth_Date")
-    private LocalDate birthDate;
-    @Column(name = "gender")
+    @Column(name = "PATRONYMIC")
+    private String patronymic;
+    @Column(name = "PASSPORT_NUMBER")
+    private String passportNumber;
+    @Column(name = "BIRTHDATE")
+    private LocalDate birthdate;
+    @Column(name = "SEX")
     @Enumerated(EnumType.STRING)
-    private Gender gender;
-    @Column(name = "salary")
+    private Sex sex;
+    @Column(name = "SALARY")
     private int salary;
-    @Column(name = "credit_Amount")
-    private int creditAmount;
-    @Column(name = "duration_In_Months")
-    private int durationInMonths;
+    @Column(name = "MORTGAGE_AMOUNT")
+    private int mortgageAmount;
+    @Column(name = "MORTGAGE_PERIOD")
+    private int mortgagePeriod;
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "STATUS")
     private Status status;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Column(name = "monthly_payment")
+    @Column(name = "MONTHLY_PAYMENT")
     private BigDecimal monthlyPayment;
 
     public Customer() {
     }
 
-    public Customer(String id, String firstName, String secondName, String lastName,
-                    String passport, LocalDate birthDate, Gender gender,
-                    int salary, int creditAmount, int durationInMonth, Status status) {
+    public Customer(String id, String firstname, String secondName, String patronymic,
+                    String passportNumber, LocalDate birthdate, Sex sex,
+                    int salary, int mortgageAmount, int mortgagePeriod) {
         this.id = id;
-        this.firstName = firstName;
+        this.firstname = firstname;
         this.secondName = secondName;
-        this.lastName = lastName;
-        this.passport = passport;
-        this.birthDate = birthDate;
-        this.gender = gender;
+        this.patronymic = patronymic;
+        this.passportNumber = passportNumber;
+        this.birthdate = birthdate;
+        this.sex = sex;
         this.salary = salary;
-        this.creditAmount = creditAmount;
-        this.durationInMonths = durationInMonth;
-        this.status = status;
+        this.mortgageAmount = mortgageAmount;
+        this.mortgagePeriod = mortgagePeriod;
     }
 
-    public Customer(String id, String firstName, String secondName, String lastName,
-                    String passport, LocalDate birthDate, Gender gender,
-                    int salary, int creditAmount, int durationInMonth) {
-        this.id = id;
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.lastName = lastName;
-        this.passport = passport;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.salary = salary;
-        this.creditAmount = creditAmount;
-        this.durationInMonths = durationInMonth;
-    }
-
-    public Customer(String firstName, String secondName, String lastName,
-                    String passport, LocalDate birthDate, Gender gender,
-                    int salary, int creditAmount, int durationInMonth) {
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.lastName = lastName;
-        this.passport = passport;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.salary = salary;
-        this.creditAmount = creditAmount;
-        this.durationInMonths = durationInMonth;
-    }
-
-    public Status getStatus() {
-        if(this.status != null) {
-            return status;
-        } else {
-            return Status.PROCESSING;
-        }
-    }
-
-    public boolean poleNoEmpty() {
-        return this.firstName != null &&
-                this.secondName != null &&
-                this.lastName != null &&
-                this.passport != null &&
-                this.birthDate != null &&
-                this.gender != null;
-    }
-
-    public boolean poleNoZero() {
+    public boolean fieldNotZero() {
         return this.salary != 0 &&
-                this.creditAmount != 0 &&
-                this.durationInMonths != 0;
+                this.mortgageAmount != 0 &&
+                this.mortgagePeriod != 0;
+    }
+    public boolean fieldNotNull() {
+        return this.firstname != null &&
+                this.secondName != null &&
+                this.patronymic != null &&
+                this.passportNumber != null &&
+                this.birthdate != null &&
+                this.sex != null;
     }
 }

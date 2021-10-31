@@ -1,56 +1,43 @@
 package com.glavatskikhvn.mortgageapplicationservice.customer;
 
 import lombok.Data;
+import org.openapitools.client.api.MortgageCalculatorApi;
+import org.openapitools.client.model.MortgageCalculateParams;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
 public class CustomerWithoutId {
 
-    private String firstName;
+    private String firstname;
     private String secondName;
-    private String lastName;
-    private String passport;
-    private LocalDate birthDate;
+    private String patronymic;
+    private String passportNumber;
+    private LocalDate birthdate;
     @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private Sex sex;
     private int salary;
-    private int creditAmount;
-    private int durationInMonths;
-
-    public CustomerWithoutId() {
-
-    }
-
-    public CustomerWithoutId(String firstName, String secondName, String lastName,
-                             String passport, LocalDate birthDate, Gender gender,
-                             int salary, int creditAmount, int durationInMonths) {
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.lastName = lastName;
-        this.passport = passport;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.salary = salary;
-        this.creditAmount = creditAmount;
-        this.durationInMonths = durationInMonths;
-    }
+    private int mortgageAmount;
+    private int mortgagePeriod;
 
     private String generateId() {
         return UUID.randomUUID().toString();
     }
 
     public Customer getCustomer(CustomerWithoutId customer){
-        return new Customer(generateId(), firstName, secondName, lastName, passport,
-                birthDate, gender, salary, creditAmount, durationInMonths);
+        return new Customer(generateId(), firstname, secondName, patronymic, passportNumber,
+                birthdate, sex, salary, mortgageAmount, mortgagePeriod);
     }
 
-    public Customer getCustomerWithoutId (CustomerWithoutId customerWithoutId) {
-        return new Customer(firstName, secondName, lastName, passport,
-                birthDate, gender, salary, creditAmount, durationInMonths);
-    }
 
+    private final MortgageCalculatorApi mortgageCalculatorApi = new MortgageCalculatorApi();
+    private final MortgageCalculateParams mortgageCalculateParams = new MortgageCalculateParams();
+    private final BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(mortgageCalculateParams).getMonthlyPayment();
+    public boolean satisfactorySalary(){
+        return this.salary/monthlyPayment.doubleValue() >= 2;
+    }
 }

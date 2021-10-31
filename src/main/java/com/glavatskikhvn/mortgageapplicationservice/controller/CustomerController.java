@@ -1,4 +1,4 @@
-package com.glavatskikhvn.mortgageapplicationservice.controllers;
+package com.glavatskikhvn.mortgageapplicationservice.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,35 +32,12 @@ public class CustomerController {
 
     @Operation(
             operationId = "getCustomer",
-            summary = "Найти заявку по ID",
+            summary = "Find application by ID",
             description = "Return single customer",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "OK",
-                            content = {
-                                    /*@Content(
-                                            mediaType = "application/json",
-                                            examples = {
-                                                    @ExampleObject(
-                                                            value = """
-                                                                    {
-                                                                    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                                                                    "firstName": "Иван",
-                                                                    "secondName": "Иванович",
-                                                                    "lastName": "Иванов",
-                                                                    "passport": "9410123456",
-                                                                    "birthDate": "1990-10-23",
-                                                                    "gender": "MALE",
-                                                                    "salary": 80000,
-                                                                    "creditAmount": 3000000,
-                                                                    "durationInMonths": 120,
-                                                                    "status": "PROCESSING"
-                                                                    }"""
-                                                    )
-                                            }
-                                    ),*/
-                            }
+                            description = "OK"
                     ),
                     @ApiResponse(
                             responseCode = "404",
@@ -77,7 +54,7 @@ public class CustomerController {
             return ResponseEntity.of(userOpt);
         }
         return ResponseEntity.badRequest().
-                body(Collections.singletonMap("error", "Customer not exist"));
+                body(Collections.singletonMap("error", "Customer not found"));
     }
 
     @Operation(
@@ -95,23 +72,22 @@ public class CustomerController {
     ResponseEntity<?> createCustomer(@RequestBody CustomerWithoutId customer) {
         Customer customerWithId = customer.getCustomer(customer);
         if (!isExpected(customer)) {
-            if (!customerWithId.poleNoZero()) {
+            if (!customerWithId.fieldNotZero()) {
                 return ResponseEntity.badRequest().
-                        body(Collections.singletonMap("error", "one of the fields is null"));
+                        body(Collections.singletonMap("error", "one of the fields is empty"));
             }
             MortgageCalculatorApi mortgageCalculatorApi = new MortgageCalculatorApi();
-            MortgageCalculateParams calculateParams = new MortgageCalculateParams();
-            calculateParams.setCreditAmount(BigDecimal.valueOf(customerWithId.getCreditAmount()));
-            calculateParams.setDurationInMonths(customerWithId.getDurationInMonths());
-            BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(calculateParams).getMonthlyPayment();
-            if (!customerWithId.poleNoEmpty()) {
+            MortgageCalculateParams mortgageCalculateParams = new MortgageCalculateParams();
+            mortgageCalculateParams.setCreditAmount(BigDecimal.valueOf(customerWithId.getMortgageAmount()));
+            mortgageCalculateParams.setDurationInMonths(customerWithId.getMortgagePeriod());
+            BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(mortgageCalculateParams).getMonthlyPayment();
+            if (!customerWithId.fieldNotNull()) {
                 return ResponseEntity.badRequest().
-                        body(Collections.singletonMap("error", "one of the fields is null"));
+                        body(Collections.singletonMap("error", "one of the fields is empty"));
             }
-            if (customer.getSalary() / monthlyPayment.doubleValue() >= 2) {
+            if (customer.satisfactorySalary()) {
                 customerWithId.setStatus(Status.APPROVED);
                 customerWithId.setMonthlyPayment(monthlyPayment);
-                customerRepository.save(customerWithId);
             } else {
                 customerWithId.setStatus(Status.DENIED);
                 customerRepository.save(customerWithId);
@@ -124,14 +100,9 @@ public class CustomerController {
     }
 
     boolean isExpected(CustomerWithoutId customerWithoutId) {
-        if (customerRepository.findByFirstNameAndSecondNameAndLastNameAndPassport(customerWithoutId.getFirstName(),
-                customerWithoutId.getSecondName(), customerWithoutId.getLastName(),
-                customerWithoutId.getPassport()) == null) {
-            return false;
-        } else {
-            return true;
-
-        }
+        return customerRepository.findByFirstnameAndSecondNameAndPatronymicAndPassportNumber(customerWithoutId.getFirstname(),
+                customerWithoutId.getSecondName(), customerWithoutId.getPatronymic(),
+                customerWithoutId.getPassportNumber()) != null;
     }
 }
 
