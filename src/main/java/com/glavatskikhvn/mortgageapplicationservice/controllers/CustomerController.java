@@ -38,7 +38,10 @@ import java.util.Optional;
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "OK"
+                            description = "OK",
+                            content = {
+
+                    }
                     ),
                     @ApiResponse(
                             responseCode = "404",
@@ -49,10 +52,10 @@ import java.util.Optional;
     )
     @GetMapping("/customer/{id}")
     public ResponseEntity getByID(@PathVariable String id) {
-        Optional<Customer> userById;
-        userById = customerRepository.findById(id);
-        if (userById.isPresent()) {
-            return ResponseEntity.of(userById);
+        Optional<Customer> userOpt;
+        userOpt = customerRepository.findById(id);
+        if (userOpt.isPresent()) {
+            return ResponseEntity.of(userOpt);
         }
         return ResponseEntity.badRequest().
                 body(Collections.singletonMap("error", "Customer not found"));
@@ -78,21 +81,22 @@ import java.util.Optional;
                         body(Collections.singletonMap("error", "one of the fields is empty"));
             }
             MortgageCalculatorApi mortgageCalculatorApi = new MortgageCalculatorApi();
-            MortgageCalculateParams mortgageCalculateParams = new MortgageCalculateParams();
-            mortgageCalculateParams.setCreditAmount(BigDecimal.valueOf(customerWithId.getMortgageAmount()));
-            mortgageCalculateParams.setDurationInMonths(customerWithId.getMortgagePeriod());
-            BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(mortgageCalculateParams).getMonthlyPayment();
+            MortgageCalculateParams calculateParams = new MortgageCalculateParams();
+            calculateParams.setCreditAmount(BigDecimal.valueOf(customerWithId.getMortgageAmount()));
+            calculateParams.setDurationInMonths(customerWithId.getMortgagePeriod());
+            BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(calculateParams).getMonthlyPayment();
             if (!customerWithId.fieldNoNull()) {
                 return ResponseEntity.badRequest().
                         body(Collections.singletonMap("error", "one of the fields is empty"));
             }
-            if (customer.satisfactorySalary()) {
+            if (customer.getSalary() / monthlyPayment.doubleValue() >= 2) {
                 customerWithId.setStatus(Status.APPROVED);
                 customerWithId.setMonthlyPayment(monthlyPayment);
+                customerRepository.save(customerWithId);
             } else {
                 customerWithId.setStatus(Status.DENIED);
+                customerRepository.save(customerWithId);//111
             }
-            customerRepository.save(customerWithId);
             return ResponseEntity.created(ServletUriComponentsBuilder.
                     fromCurrentRequest().path("/customer/{id}").
                     build(Collections.singletonMap("id",
