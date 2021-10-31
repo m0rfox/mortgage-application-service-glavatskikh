@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import com.glavatskikhvn.mortgageapplicationservice.customer.CustomerRepository;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @OpenAPIDefinition(
 		info = @Info(
@@ -14,7 +15,7 @@ import com.glavatskikhvn.mortgageapplicationservice.customer.CustomerRepository;
 		)
 )
 @SpringBootApplication
-	public class MortgageApplicationServiceApplication {
+	public class MortgageApplicationServiceApplication extends SpringBootServletInitializer {
 	private CustomerRepository customerRepository;
 	public static void main(String[] args) {
 		SpringApplication.run(MortgageApplicationServiceApplication.class, args);

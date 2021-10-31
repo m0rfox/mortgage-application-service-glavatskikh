@@ -1,10 +1,13 @@
 package com.glavatskikhvn.mortgageapplicationservice.customer;
 
 import lombok.Data;
+import org.openapitools.client.api.MortgageCalculatorApi;
+import org.openapitools.client.model.MortgageCalculateParams;
 
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -17,14 +20,14 @@ public class CustomerWithoutId {
     private String passportNumber;
     private LocalDate birthdate;
     @Enumerated(EnumType.STRING)
-    private Customer.Sex sex;
+    private Sex sex;
     private int salary;
     private int mortgageAmount;
     private int mortgagePeriod;
 
     public CustomerWithoutId(String firstname, String lastName,
                              String patronymic, String passportNumber,
-                             LocalDate birthdate, Customer.Sex sex,
+                             LocalDate birthdate, Sex sex,
                              int salary, int mortgageAmount, int mortgagePeriod) {
         this.firstname = firstname;
         this.lastName = lastName;
@@ -42,7 +45,14 @@ public class CustomerWithoutId {
     }
 
     public Customer getCustomer(CustomerWithoutId customer){
-        return new Customer(generateId(), firstname, lastName,patronymic, passportNumber,
+        return new Customer(generateId(), firstname, lastName, patronymic, passportNumber,
         birthdate, sex, salary, mortgageAmount, mortgagePeriod);
+    }
+
+    private final MortgageCalculatorApi mortgageCalculatorApi = new MortgageCalculatorApi();
+    private final MortgageCalculateParams mortgageCalculateParams = new MortgageCalculateParams();
+    private final BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(mortgageCalculateParams).getMonthlyPayment();
+    public boolean satisfactorySalary(){
+        return this.salary/monthlyPayment.doubleValue() >= 2;
     }
 }

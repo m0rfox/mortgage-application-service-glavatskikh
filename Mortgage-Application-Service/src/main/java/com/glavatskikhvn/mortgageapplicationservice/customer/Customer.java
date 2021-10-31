@@ -1,9 +1,13 @@
 package com.glavatskikhvn.mortgageapplicationservice.customer;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import org.openapitools.client.api.MortgageCalculatorApi;
+import org.openapitools.client.model.MortgageCalculateParams;
 
 @Data
 @Table
@@ -31,12 +35,11 @@ public class Customer {
     @Column(name = "mortgagePeriod")
     private int mortgagePeriod;
     @Column(name = "status", nullable = true)//проверить
-    private String status;
+    private Status status;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Column(name = "monthly_payment")
+    private BigDecimal monthlyPayment;
 
-    public enum Sex {
-        MALE,
-        FEMALE
-    }
 
     public Customer() {
     }
@@ -57,7 +60,7 @@ public class Customer {
 
     public Customer(String id, String firstname, String lastName, String patronymic,
                     String passportNumber, LocalDate birthdate,
-                    Sex sex, int salary, int mortgageAmount, int mortgagePeriod, String status) {
+                    Sex sex, int salary, int mortgageAmount, int mortgagePeriod, Status status) {
         this.id = id;
         this.firstname = firstname;
         this.lastName = lastName;
@@ -86,12 +89,21 @@ public class Customer {
         this.mortgagePeriod = mortgagePeriod;
     }
 
-    public String getStatus() {
-        if(status != null) {
-            return status;
-        } else {
-            return "PROCESSING";
-        }
+
+    public boolean fieldNoZero() {
+        return this.salary != 0 &&
+            this.mortgageAmount != 0 &&
+            this.mortgagePeriod != 0;
     }
+    public boolean fieldNoNull() {
+        return this.firstname != null &&
+                this.lastName != null &&
+                this.patronymic != null &&
+                this.passportNumber != null &&
+                this.birthdate != null &&
+                this.sex != null;
+    }
+
+
 
 }

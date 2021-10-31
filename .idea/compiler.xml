@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Mortgage-Application-Service" target="15" />
+      <module name="Mortgage-Application-Service" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -2,17 +2,22 @@ package com.glavatskikhvn.mortgageapplicationservice.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openapitools.client.api.MortgageCalculatorApi;
+import org.openapitools.client.model.MortgageCalculateParams;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.glavatskikhvn.mortgageapplicationservice.customer.Customer;
-import com.glavatskikhvn.mortgageapplicationservice.customer.CustomerWithoutId;
 import com.glavatskikhvn.mortgageapplicationservice.customer.CustomerRepository;
+import com.glavatskikhvn.mortgageapplicationservice.customer.CustomerWithoutId;
+import com.glavatskikhvn.mortgageapplicationservice.customer.Status;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Optional;
 
 @Tag(name = "Customer", description = "Customer API")
@@ -33,30 +38,7 @@ import java.util.Optional;
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "OK",
-                            content = {
-                                    @Content(
-                                            mediaType = "application/json",
-                                            examples = {
-                                                    @ExampleObject(
-                                                            value = """
-                                                                    {
-                                                                    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                                                                    "firstname": "Иван",
-                                                                    "lastName": "Иванович",
-                                                                    "patronymic": "Иванов",
-                                                                    "passportNumber": "9410123456",
-                                                                    "birthdate": "1990-10-23",
-                                                                    "sex": "MALE",
-                                                                    "salary": 50000,
-                                                                    "mortgageAmount": 1500000,
-                                                                    "mortgagePeriod": 80,
-                                                                    "status": "PROCESSING"
-                                                                    }"""
-                                                    )
-                                            }
-                                    ),
-                            }
+                            description = "OK"
                     ),
                     @ApiResponse(
                             responseCode = "404",
@@ -66,12 +48,14 @@ import java.util.Optional;
             }
     )
     @GetMapping("/customer/{id}")
-    ResponseEntity<Optional<Customer>> getCustomer(@PathVariable String id) {
-        if (customerRepository.findById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(customerRepository.findById(id));
+    public ResponseEntity getByID(@PathVariable String id) {
+        Optional<Customer> userById;
+        userById = customerRepository.findById(id);
+        if (userById.isPresent()) {
+            return ResponseEntity.of(userById);
         }
+        return ResponseEntity.badRequest().
+                body(Collections.singletonMap("error", "Customer not found"));
     }
 
     @Operation(
@@ -89,22 +73,42 @@ import java.util.Optional;
     ResponseEntity<?> createCustomer(@RequestBody CustomerWithoutId customer) {
         Customer customerWithId = customer.getCustomer(customer);
         if (!isExpected(customer)) {
+            if (!customerWithId.fieldNoZero()) {
+                return ResponseEntity.badRequest().
+                        body(Collections.singletonMap("error", "one of the fields is empty"));
+            }
+            MortgageCalculatorApi mortgageCalculatorApi = new MortgageCalculatorApi();
+            MortgageCalculateParams mortgageCalculateParams = new MortgageCalculateParams();
+            mortgageCalculateParams.setCreditAmount(BigDecimal.valueOf(customerWithId.getMortgageAmount()));
+            mortgageCalculateParams.setDurationInMonths(customerWithId.getMortgagePeriod());
+            BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(mortgageCalculateParams).getMonthlyPayment();
+            if (!customerWithId.fieldNoNull()) {
+                return ResponseEntity.badRequest().
+                        body(Collections.singletonMap("error", "one of the fields is empty"));
+            }
+            if (customer.satisfactorySalary()) {
+                customerWithId.setStatus(Status.APPROVED);
+                customerWithId.setMonthlyPayment(monthlyPayment);
+            } else {
+                customerWithId.setStatus(Status.DENIED);
+            }
             customerRepository.save(customerWithId);
-            return ResponseEntity.ok(customerWithId);
+            return ResponseEntity.created(ServletUriComponentsBuilder.
+                    fromCurrentRequest().path("/customer/{id}").
+                    build(Collections.singletonMap("id",
+                            customerWithId.getId()))).body(customerWithId);
         } else {
             return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    boolean isExpected(CustomerWithoutId customer) {
-        if (customerRepository.findByPassportNumber(customer.getPassportNumber()) == null) {
-            return false;
-        } else {
-            return customerRepository.findByPassportNumber(customer.getPassportNumber()).getPassportNumber()
-                    .equals(customer.getCustomer(customer).getPassportNumber());
-        }
+        boolean isExpected (CustomerWithoutId customer){
+            return customerRepository.findByFirstnameAndLastNameAndPatronymicAndPassportNumber(
+                    customer.getFirstname(), customer.getLastName(),
+                    customer.getPatronymic(), customer.getPassportNumber()) != null;
     }
 }
+
 
 
 
