@@ -11,3 +11,4 @@ public interface CustomerRepository
     Customer findByFirstnameAndLastNameAndPatronymicAndPassportNumber(String firstname, String lastName,
                                                                       String patronymic, String passportNumber);
 }
+

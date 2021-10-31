@@ -6,8 +6,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import org.openapitools.client.api.MortgageCalculatorApi;
-import org.openapitools.client.model.MortgageCalculateParams;
+
 
 @Data
 @Table
@@ -34,7 +33,8 @@ public class Customer {
     private int mortgageAmount;
     @Column(name = "mortgagePeriod")
     private int mortgagePeriod;
-    @Column(name = "status", nullable = true)//проверить
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private Status status;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Column(name = "monthly_payment")

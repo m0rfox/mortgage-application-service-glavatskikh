@@ -49,10 +49,4 @@ public class CustomerWithoutId {
         birthdate, sex, salary, mortgageAmount, mortgagePeriod);
     }
 
-    private final MortgageCalculatorApi mortgageCalculatorApi = new MortgageCalculatorApi();
-    private final MortgageCalculateParams mortgageCalculateParams = new MortgageCalculateParams();
-    private final BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(mortgageCalculateParams).getMonthlyPayment();
-    public boolean satisfactorySalary(){
-        return this.salary/monthlyPayment.doubleValue() >= 2;
-    }
 }

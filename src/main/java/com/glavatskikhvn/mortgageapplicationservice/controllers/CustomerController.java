@@ -86,13 +86,14 @@ import java.util.Optional;
                 return ResponseEntity.badRequest().
                         body(Collections.singletonMap("error", "one of the fields is empty"));
             }
-            if (customer.satisfactorySalary()) {
+            if (customer.getSalary() / monthlyPayment.doubleValue() >= 2) {
                 customerWithId.setStatus(Status.APPROVED);
                 customerWithId.setMonthlyPayment(monthlyPayment);
+                customerRepository.save(customerWithId);
             } else {
                 customerWithId.setStatus(Status.DENIED);
+                customerRepository.save(customerWithId);
             }
-            customerRepository.save(customerWithId);
             return ResponseEntity.created(ServletUriComponentsBuilder.
                     fromCurrentRequest().path("/customer/{id}").
                     build(Collections.singletonMap("id",
