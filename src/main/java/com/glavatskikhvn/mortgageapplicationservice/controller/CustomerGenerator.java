@@ -13,8 +13,8 @@ import java.util.UUID;
 @Data
 public class CustomerGenerator {
 
-    private String firstname;
     private String secondName;
+    private String firstname;
     private String patronymic;
     private String passportNumber;
     private LocalDate birthdate;
@@ -29,7 +29,7 @@ public class CustomerGenerator {
     }
 
     public Customer getCustomer(CustomerGenerator customer){
-        return new Customer(generateId(), firstname, secondName, patronymic, passportNumber,
+        return new Customer(generateId(), secondName, firstname,  patronymic, passportNumber,
                 birthdate, sex, salary, mortgageAmount, mortgagePeriod);
     }
 

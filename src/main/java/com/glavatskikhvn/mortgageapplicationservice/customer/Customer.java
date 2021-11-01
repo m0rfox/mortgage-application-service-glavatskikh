@@ -13,10 +13,10 @@ public class Customer {
     @Id
     @Column(name = "ID", nullable = false)
     private String id;
-    @Column(name = "FIRSTNAME")
-    private String firstname;
     @Column(name = "SECOND_NAME")
     private String secondName;
+    @Column(name = "FIRSTNAME")
+    private String firstname;
     @Column(name = "PATRONYMIC")
     private String patronymic;
     @Column(name = "PASSPORT_NUMBER")
@@ -42,12 +42,12 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(String id, String firstname, String secondName, String patronymic,
+    public Customer(String id, String secondName, String firstname, String patronymic,
                     String passportNumber, LocalDate birthdate, Sex sex,
                     BigDecimal salary, BigDecimal mortgageAmount, int mortgagePeriod) {
         this.id = id;
-        this.firstname = firstname;
         this.secondName = secondName;
+        this.firstname = firstname;
         this.patronymic = patronymic;
         this.passportNumber = passportNumber;
         this.birthdate = birthdate;
@@ -63,8 +63,8 @@ public class Customer {
                 this.mortgagePeriod != 0;
     }
     public boolean fieldNotNull() {
-        return this.firstname != null &&
-                this.secondName != null &&
+        return this.secondName != null &&
+                this.firstname != null &&
                 this.patronymic != null &&
                 this.passportNumber != null &&
                 this.birthdate != null &&

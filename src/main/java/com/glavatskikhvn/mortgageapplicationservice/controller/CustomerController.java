@@ -53,8 +53,7 @@ public class CustomerController {
         if (userOpt.isPresent()) {
             return ResponseEntity.of(userOpt);
         }
-        return ResponseEntity.badRequest().
-                body(Collections.singletonMap("error", "Customer not found"));
+        return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
     }
 
     @Operation(
@@ -103,9 +102,10 @@ public class CustomerController {
     }
 
     boolean isExpected(CustomerGenerator customerGenerator) {
-        if (customerRepository.findByFirstnameAndSecondNameAndPatronymicAndPassportNumber(
+        if (customerRepository.findBySecondNameAndFirstnameAndPatronymicAndPassportNumber(
+                customerGenerator.getSecondName(),
                 customerGenerator.getFirstname(),
-                customerGenerator.getSecondName(), customerGenerator.getSecondName(),
+                customerGenerator.getPatronymic(),
                 customerGenerator.getPassportNumber()) == null) {
             return false;
         } else {
