@@ -92,6 +92,8 @@ public class CustomerController {
             } else {
                 customer.setStatus(Status.DENIED);
                 customerRepository.save(customer);
+                return ResponseEntity.badRequest().
+                        body(Collections.singletonMap("error", "low income level, increase the mortgage period or decrease mortgage amount"));
             }
             return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/customer/{id}").
                     build(Collections.singletonMap("id", customer.getId()))).body(customer);
