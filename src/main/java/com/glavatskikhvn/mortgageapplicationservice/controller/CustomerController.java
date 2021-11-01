@@ -85,9 +85,10 @@ public class CustomerController {
                 return ResponseEntity.badRequest().
                         body(Collections.singletonMap("error", "one of the fields is empty"));
             }
-            if (customer.satisfactorySalary()) {
+            if (customer.getSalary() / monthlyPayment.doubleValue() >= 2) {
                 customerWithId.setStatus(Status.APPROVED);
                 customerWithId.setMonthlyPayment(monthlyPayment);
+                customerRepository.save(customerWithId);
             } else {
                 customerWithId.setStatus(Status.DENIED);
                 customerRepository.save(customerWithId);
@@ -100,9 +101,14 @@ public class CustomerController {
     }
 
     boolean isExpected(CustomerWithoutId customerWithoutId) {
-        return customerRepository.findByFirstnameAndSecondNameAndPatronymicAndPassportNumber(customerWithoutId.getFirstname(),
-                customerWithoutId.getSecondName(), customerWithoutId.getPatronymic(),
-                customerWithoutId.getPassportNumber()) != null;
+        if (customerRepository.findByFirstnameAndSecondNameAndPatronymicAndPassportNumber(customerWithoutId.getFirstname(),
+                customerWithoutId.getSecondName(), customerWithoutId.getSecondName(),
+                customerWithoutId.getPassportNumber()) == null) {
+            return false;
+        } else {
+            return true;
+
+        }
     }
 }
 

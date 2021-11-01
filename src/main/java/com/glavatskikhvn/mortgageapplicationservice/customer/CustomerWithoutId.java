@@ -1,12 +1,9 @@
 package com.glavatskikhvn.mortgageapplicationservice.customer;
 
 import lombok.Data;
-import org.openapitools.client.api.MortgageCalculatorApi;
-import org.openapitools.client.model.MortgageCalculateParams;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -31,13 +28,5 @@ public class CustomerWithoutId {
     public Customer getCustomer(CustomerWithoutId customer){
         return new Customer(generateId(), firstname, secondName, patronymic, passportNumber,
                 birthdate, sex, salary, mortgageAmount, mortgagePeriod);
-    }
-
-
-    private final MortgageCalculatorApi mortgageCalculatorApi = new MortgageCalculatorApi();
-    private final MortgageCalculateParams mortgageCalculateParams = new MortgageCalculateParams();
-    private final BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(mortgageCalculateParams).getMonthlyPayment();
-    public boolean satisfactorySalary(){
-        return this.salary/monthlyPayment.doubleValue() >= 2;
     }
 }
