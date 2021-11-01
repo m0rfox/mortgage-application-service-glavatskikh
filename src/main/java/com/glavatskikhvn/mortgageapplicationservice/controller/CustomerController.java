@@ -87,11 +87,10 @@ public class CustomerController {
             if (newCustomer.getSalary() / monthlyPayment.doubleValue() >= 2) {
                 customerWithId.setStatus(Status.APPROVED);
                 customerWithId.setMonthlyPayment(monthlyPayment);
-                customerRepository.save(customerWithId);
             } else {
                 customerWithId.setStatus(Status.DENIED);
-                customerRepository.save(customerWithId);
             }
+            customerRepository.save(customerWithId);
             return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/customer/{id}").
                     build(Collections.singletonMap("id", customerWithId.getId()))).body(customerWithId);
         } else {
