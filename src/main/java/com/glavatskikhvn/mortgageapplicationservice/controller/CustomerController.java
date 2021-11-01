@@ -16,6 +16,7 @@ import com.glavatskikhvn.mortgageapplicationservice.customer.CustomerRepository;
 import com.glavatskikhvn.mortgageapplicationservice.customer.Status;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -69,37 +70,39 @@ public class CustomerController {
 
     @PostMapping
     ResponseEntity<?> createCustomer(@RequestBody CustomerGenerator newCustomer) {
-        Customer customerWithId = newCustomer.getCustomer(newCustomer);
+        Customer customer = newCustomer.getCustomer(newCustomer);
         if (!isExpected(newCustomer)) {
-            if (!customerWithId.fieldNotZero()) {
+            if (!customer.fieldNotZero()) {
                 return ResponseEntity.badRequest().
                         body(Collections.singletonMap("error", "one of the fields is empty"));
             }
             MortgageCalculatorApi mortgageCalculatorApi = new MortgageCalculatorApi();
             MortgageCalculateParams mortgageCalculateParams = new MortgageCalculateParams();
-            mortgageCalculateParams.setCreditAmount(BigDecimal.valueOf(customerWithId.getMortgageAmount()));
-            mortgageCalculateParams.setDurationInMonths(customerWithId.getMortgagePeriod());
+            mortgageCalculateParams.setCreditAmount(customer.getMortgageAmount());
+            mortgageCalculateParams.setDurationInMonths(customer.getMortgagePeriod());
             BigDecimal monthlyPayment = mortgageCalculatorApi.calculate(mortgageCalculateParams).getMonthlyPayment();
-            if (!customerWithId.fieldNotNull()) {
+            if (!customer.fieldNotNull()) {
                 return ResponseEntity.badRequest().
                         body(Collections.singletonMap("error", "one of the fields is empty"));
             }
-            if (newCustomer.getSalary() / monthlyPayment.doubleValue() >= 2) {
-                customerWithId.setStatus(Status.APPROVED);
-                customerWithId.setMonthlyPayment(monthlyPayment);
+            if (customer.getSalary().divide(monthlyPayment, 0, RoundingMode.DOWN).compareTo(new BigDecimal(2)) == 1) {
+                customer.setStatus(Status.APPROVED);
+                customer.setMonthlyPayment(monthlyPayment);
+                customerRepository.save(customer);
             } else {
-                customerWithId.setStatus(Status.DENIED);
+                customer.setStatus(Status.DENIED);
+                customerRepository.save(customer);
             }
-            customerRepository.save(customerWithId);
             return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/customer/{id}").
-                    build(Collections.singletonMap("id", customerWithId.getId()))).body(customerWithId);
+                    build(Collections.singletonMap("id", customer.getId()))).body(customer);
         } else {
-            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<String>(HttpStatus.CONFLICT);
         }
     }
 
     boolean isExpected(CustomerGenerator customerGenerator) {
-        if (customerRepository.findByFirstnameAndSecondNameAndPatronymicAndPassportNumber(customerGenerator.getFirstname(),
+        if (customerRepository.findByFirstnameAndSecondNameAndPatronymicAndPassportNumber(
+                customerGenerator.getFirstname(),
                 customerGenerator.getSecondName(), customerGenerator.getSecondName(),
                 customerGenerator.getPassportNumber()) == null) {
             return false;

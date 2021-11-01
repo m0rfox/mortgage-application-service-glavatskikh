@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -19,8 +20,8 @@ public class CustomerGenerator {
     private LocalDate birthdate;
     @Enumerated(EnumType.STRING)
     private Sex sex;
-    private int salary;
-    private int mortgageAmount;
+    private BigDecimal salary;
+    private BigDecimal mortgageAmount;
     private int mortgagePeriod;
 
     private String generateId() {

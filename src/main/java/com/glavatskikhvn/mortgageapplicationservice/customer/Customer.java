@@ -27,9 +27,9 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private Sex sex;
     @Column(name = "SALARY")
-    private int salary;
+    private BigDecimal salary;
     @Column(name = "MORTGAGE_AMOUNT")
-    private int mortgageAmount;
+    private BigDecimal mortgageAmount;
     @Column(name = "MORTGAGE_PERIOD")
     private int mortgagePeriod;
     @Enumerated(EnumType.STRING)
@@ -44,7 +44,7 @@ public class Customer {
 
     public Customer(String id, String firstname, String secondName, String patronymic,
                     String passportNumber, LocalDate birthdate, Sex sex,
-                    int salary, int mortgageAmount, int mortgagePeriod) {
+                    BigDecimal salary, BigDecimal mortgageAmount, int mortgagePeriod) {
         this.id = id;
         this.firstname = firstname;
         this.secondName = secondName;
@@ -58,8 +58,8 @@ public class Customer {
     }
 
     public boolean fieldNotZero() {
-        return this.salary != 0 &&
-                this.mortgageAmount != 0 &&
+        return this.salary.compareTo(BigDecimal.ZERO) !=0 &&
+                this.mortgageAmount.compareTo(BigDecimal.ZERO) !=0 &&
                 this.mortgagePeriod != 0;
     }
     public boolean fieldNotNull() {
