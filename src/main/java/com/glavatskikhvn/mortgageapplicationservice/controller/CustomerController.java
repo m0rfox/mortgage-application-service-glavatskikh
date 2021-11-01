@@ -85,7 +85,7 @@ public class CustomerController {
                 return ResponseEntity.badRequest().
                         body(Collections.singletonMap("error", "one of the fields is empty"));
             }
-            if (customer.getSalary() / monthlyPayment.doubleValue() >= 2) {
+            if (customer.satisfactorySalary()) {
                 customerWithId.setStatus(Status.APPROVED);
                 customerWithId.setMonthlyPayment(monthlyPayment);
                 customerRepository.save(customerWithId);
