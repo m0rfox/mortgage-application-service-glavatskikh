@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.glavatskikhvn.mortgageapplicationservice.customer.Customer;
 import com.glavatskikhvn.mortgageapplicationservice.customer.CustomerRepository;
-import com.glavatskikhvn.mortgageapplicationservice.customer.CustomerWithoutId;
 import com.glavatskikhvn.mortgageapplicationservice.customer.Status;
 
 import java.math.BigDecimal;
@@ -62,16 +61,16 @@ public class CustomerController {
                     @ApiResponse(
                             responseCode = "200",
                             content = {
-                                    @Content(schema = @Schema(implementation = CustomerWithoutId.class))
+                                    @Content(schema = @Schema(implementation = CustomerGenerator.class))
                             }
                     )
             }
     )
 
     @PostMapping
-    ResponseEntity<?> createCustomer(@RequestBody CustomerWithoutId customer) {
-        Customer customerWithId = customer.getCustomer(customer);
-        if (!isExpected(customer)) {
+    ResponseEntity<?> createCustomer(@RequestBody CustomerGenerator newCustomer) {
+        Customer customerWithId = newCustomer.getCustomer(newCustomer);
+        if (!isExpected(newCustomer)) {
             if (!customerWithId.fieldNotZero()) {
                 return ResponseEntity.badRequest().
                         body(Collections.singletonMap("error", "one of the fields is empty"));
@@ -85,7 +84,7 @@ public class CustomerController {
                 return ResponseEntity.badRequest().
                         body(Collections.singletonMap("error", "one of the fields is empty"));
             }
-            if (customer.satisfactorySalary()) {
+            if (newCustomer.getSalary() / monthlyPayment.doubleValue() >= 2) {
                 customerWithId.setStatus(Status.APPROVED);
                 customerWithId.setMonthlyPayment(monthlyPayment);
                 customerRepository.save(customerWithId);
@@ -100,10 +99,10 @@ public class CustomerController {
         }
     }
 
-    boolean isExpected(CustomerWithoutId customerWithoutId) {
-        if (customerRepository.findByFirstnameAndSecondNameAndPatronymicAndPassportNumber(customerWithoutId.getFirstname(),
-                customerWithoutId.getSecondName(), customerWithoutId.getSecondName(),
-                customerWithoutId.getPassportNumber()) == null) {
+    boolean isExpected(CustomerGenerator customerGenerator) {
+        if (customerRepository.findByFirstnameAndSecondNameAndPatronymicAndPassportNumber(customerGenerator.getFirstname(),
+                customerGenerator.getSecondName(), customerGenerator.getSecondName(),
+                customerGenerator.getPassportNumber()) == null) {
             return false;
         } else {
             return true;
